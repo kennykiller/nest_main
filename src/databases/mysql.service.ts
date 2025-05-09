@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 import { databaseConfig } from '../configs/databases/main-mysql.config';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class MySqlService {
   private pool: mysql.Pool;
 
-  constructor() {
+  constructor(private logger: LoggerService) {
     this.pool = mysql.createPool({
       ...databaseConfig,
       waitForConnections: true,
@@ -16,7 +17,11 @@ export class MySqlService {
   }
 
   async query(sql: string, params?: any[]) {
-    const [rows] = await this.pool.query(sql, params);
-    return rows;
+    try {
+      const [rows] = await this.pool.query(sql, params);
+      return rows;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }

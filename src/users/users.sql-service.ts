@@ -1,19 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { readFile } from 'node:fs/promises';
 import { MySqlService } from '../databases/mysql.service';
-import { join } from 'path';
+import { CreateUserDto } from './dto/create-user-dto';
+import { IMysqlInsertResponse } from '../databases/mysql.interfaces';
+import { UsersQueriesService } from './users.queries.service';
 
 @Injectable()
 export class UsersSqlService {
-  private basePathForUsersSql = join(process.cwd(), 'sql-queries', 'users');
+  constructor(
+    private mysqlService: MySqlService,
+    private usersQueries: UsersQueriesService,
+  ) {}
 
-  constructor(private mysqlService: MySqlService) {}
+  async getUsers(params: any[]) {
+    return this.mysqlService.query(
+      this.usersQueries.queriesMap.getAllUsers,
+      params,
+    );
+  }
 
-  async getUsers(params: any[] = [1]) {
-    const filePath = join(this.basePathForUsersSql, 'get-users.sql');
-    console.log(filePath);
+  async createUser(userData: CreateUserDto): Promise<number> {
+    const userPayload = [userData.email, userData.password, userData.name];
 
-    const file = await readFile(filePath, { encoding: 'utf-8' });
-    return this.mysqlService.query(file, params);
+    const { insertId: userId }: IMysqlInsertResponse =
+      (await this.mysqlService.query(
+        this.usersQueries.queriesMap.createUser,
+        userPayload,
+      )) as IMysqlInsertResponse;
+
+    return userId;
+  }
+
+  async getUserById(id: number) {
+    return this.mysqlService.query(this.usersQueries.queriesMap.getUserById, [
+      id,
+    ]);
   }
 }
