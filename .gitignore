@@ -1,0 +1,58 @@
+# compiled output
+/dist
+/node_modules
+/infra/volumes
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+junit.xml
+
+# IDEs and editors
+.vscode
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IDE
+partner-backend.iml
+
+init
+
+# Docker volumes
+/infra
+
+.env*
+!.env.sample
+!.env.test
+*.npmrc
+.clickhouse
+
+openapitools
+
+1
+
+OpenAPI.json
