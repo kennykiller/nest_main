@@ -15,6 +15,9 @@ import { CreateUserDto } from './dto/create-user-dto';
 import { GetUsersDto } from './dto/get-users-dto';
 import { GetUsersByEmailDto } from './dto/get-users-by-email-dto';
 import { UserResponseDto } from './dto/user-response-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import { PatchUserDto } from './dto/patch-user-dto';
+import { AtLeastOneFieldPipe } from '../pipes/at-least-one-field.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -42,10 +45,20 @@ export class UsersController {
   }
 
   @Put(':id')
-  updateUser() {}
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateUserDto,
+  ) {
+    return this.userService.updateOne(id, body);
+  }
 
   @Patch(':id')
-  patchUser() {}
+  patchUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new AtLeastOneFieldPipe()) body: PatchUserDto,
+  ) {
+    return this.userService.patchOne(id, body);
+  }
 
   @Delete(':id')
   deleteUser() {}

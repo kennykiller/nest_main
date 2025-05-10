@@ -1,22 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { UsersSqlService } from './users.sql-service';
+import { UsersRepository } from './users.repository.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { hash } from 'bcrypt';
 import { IUser } from './interfaces/user.interface';
 import { UserResponseDto } from './dto/user-response-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import { PatchUserDto } from './dto/patch-user-dto';
+import { IMysqlUpdateResponse } from '../databases/mysql.interfaces';
 
 @Injectable()
 export class UsersService {
-  constructor(private sqlService: UsersSqlService) {}
+  constructor(private usersRepo: UsersRepository) {}
 
   async getAllUsers(limit: number = 5): Promise<UserResponseDto[]> {
-    const users = (await this.sqlService.getUsers([limit])) as IUser[];
+    const users = (await this.usersRepo.getUsers({ limit })) as IUser[];
 
     return users.map((u) => new UserResponseDto(u));
   }
 
-  async getOneById(id: number): Promise<UserResponseDto | null> {
-    const [user] = (await this.sqlService.getUserById(id)) as [IUser];
+  async getOneById(userId: number): Promise<UserResponseDto | null> {
+    const [user] = (await this.usersRepo.getUserById(userId)) as [IUser];
 
     if (!user) {
       return null;
@@ -26,7 +29,7 @@ export class UsersService {
 
   async createUser(dto: CreateUserDto) {
     const hashedPassword = await hash(dto.password, 10);
-    const createdUserId = await this.sqlService.createUser({
+    const createdUserId = await this.usersRepo.createUser({
       ...dto,
       password: hashedPassword,
     });
@@ -38,24 +41,27 @@ export class UsersService {
     email: string,
     limit: number = 5,
   ): Promise<UserResponseDto[]> {
-    const emailWithWildCard = `${email}%`;
-    const users = (await this.sqlService.getUsersByEmail(
-      emailWithWildCard,
+    const users = (await this.usersRepo.getUsersByEmail(
+      email,
       limit,
     )) as IUser[];
 
     return users.map((u) => new UserResponseDto(u));
   }
 
-  async updateOne(id: number, ) {
-
+  async updateOne(
+    userId: number,
+    data: UpdateUserDto,
+  ): Promise<IMysqlUpdateResponse> {
+    return this.usersRepo.updateUser(userId, data);
   }
 
-  async patchOne() {
-
+  async patchOne(
+    userId: number,
+    data: PatchUserDto,
+  ): Promise<IMysqlUpdateResponse> {
+    return this.usersRepo.patchUser(userId, data);
   }
 
-  async deleteOne(id: number) {
-    
-  }
+  // async deleteOne(id: number) {}
 }
