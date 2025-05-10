@@ -35,4 +35,11 @@ export class UsersSqlService {
       id,
     ]);
   }
+
+  async getUsersByEmail(email: string, limit: number) {
+    return this.mysqlService.query(
+      this.usersQueries.queriesMap.getUsersByEmail,
+      [email, limit],
+    );
+  }
 }

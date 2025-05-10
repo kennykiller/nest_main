@@ -8,16 +8,20 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
+import { GetUsersDto } from './dto/get-users-dto';
+import { GetUsersByEmailDto } from './dto/get-users-by-email-dto';
+import { UserResponseDto } from './dto/user-response-dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
   @Get()
-  getAllUsers() {
-    return this.userService.getAllUsers();
+  getAllUsers(@Query() query: GetUsersDto): Promise<UserResponseDto[]> {
+    return this.userService.getAllUsers(query.limit);
   }
 
   @Get(':id')
@@ -25,8 +29,15 @@ export class UsersController {
     return this.userService.getOneById(id);
   }
 
+  @Get('search-by/email')
+  getUsersByEmail(
+    @Query() query: GetUsersByEmailDto,
+  ): Promise<UserResponseDto[]> {
+    return this.userService.getUsersByEmail(query.email, query.limit);
+  }
+
   @Post()
-  createUser(@Body() body: CreateUserDto): Promise<number> {
+  createUser(@Body() body: CreateUserDto): Promise<UserResponseDto | null> {
     return this.userService.createUser(body);
   }
 
