@@ -8,34 +8,68 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
+import { GetUsersDto } from './dto/get-users-dto';
+import { GetUsersByEmailDto } from './dto/get-users-by-email-dto';
+import { UserResponseDto } from './dto/user-response-dto';
+import { UpdateUserDto } from './dto/update-user-dto';
+import { PatchUserDto } from './dto/patch-user-dto';
+import { AtLeastOneFieldPipe } from '../pipes/at-least-one-field.pipe';
+import {
+  IMysqlDeleteResponse,
+  IMysqlUpdateResponse,
+} from '../databases/mysql.interfaces';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
   @Get()
-  getAllUsers() {
-    return this.userService.getAllUsers();
+  getAllUsers(@Query() query: GetUsersDto): Promise<UserResponseDto[]> {
+    return this.userService.getAllUsers(query.limit);
   }
 
   @Get(':id')
-  getUser(@Param('id', ParseIntPipe) id: number) {
+  getUser(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserResponseDto | null> {
     return this.userService.getOneById(id);
   }
 
+  @Get('search-by/email')
+  getUsersByEmail(
+    @Query() query: GetUsersByEmailDto,
+  ): Promise<UserResponseDto[]> {
+    return this.userService.getUsersByEmail(query.email, query.limit);
+  }
+
   @Post()
-  createUser(@Body() body: CreateUserDto): Promise<number> {
+  createUser(@Body() body: CreateUserDto): Promise<UserResponseDto | null> {
     return this.userService.createUser(body);
   }
 
   @Put(':id')
-  updateUser() {}
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateUserDto,
+  ): Promise<IMysqlUpdateResponse> {
+    return this.userService.updateOne(id, body);
+  }
 
   @Patch(':id')
-  patchUser() {}
+  patchUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new AtLeastOneFieldPipe()) body: PatchUserDto,
+  ): Promise<IMysqlUpdateResponse> {
+    return this.userService.patchOne(id, body);
+  }
 
   @Delete(':id')
-  deleteUser() {}
+  deleteUser(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<IMysqlDeleteResponse> {
+    return this.userService.deleteOne(id);
+  }
 }
