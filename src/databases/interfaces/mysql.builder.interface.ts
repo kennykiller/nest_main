@@ -26,24 +26,39 @@ export type SqlSelectOptions = {
 };
 
 export type PercentageTypes = 'right' | 'left' | 'both';
-type SqlInCondition = Record<string, any[]>;
-type SqlBetweenCondition = Record<string, [any, any]>;
 export interface ISqlBuilderResult {
   query: string;
   params: any[];
 }
 
+export type SqlConditionType = 'and' | 'or';
+
+export type SqlConditionBase = {
+  [K in SqlConditionType]?: Record<string, any>;
+};
+
+type SqlInCondition = {
+  [K in SqlConditionType]?: Record<string, any[]>;
+};
+type SqlBetweenCondition = {
+  [K in SqlConditionType]?: Record<string, [any, any]>;
+};
+type SqlNullCondition = {
+  [K in SqlConditionType]?: string[];
+};
+
 export interface SqlWhereConditions {
-  equal?: Record<string, any>;
-  gt?: Record<string, any>;
-  gte?: Record<string, any>;
-  lt?: Record<string, any>;
-  lte?: Record<string, any>;
+  equal?: SqlConditionBase;
+  gt?: SqlConditionBase;
+  gte?: SqlConditionBase;
+  lt?: SqlConditionBase;
+  lte?: SqlConditionBase;
   like?: {
-    [K in PercentageTypes]?: Record<string, any>;
+    [K in PercentageTypes]?: SqlConditionBase;
   };
   in?: SqlInCondition;
   between?: SqlBetweenCondition;
-  isNull?: string[];
-  isNotNull?: string[];
+  isNull?: SqlNullCondition;
+  isNotNull?: SqlNullCondition;
+  subCondition?: SqlWhereConditions;
 }

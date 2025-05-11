@@ -28,6 +28,7 @@ export class UsersRepository {
       null,
       options,
     );
+
     const users = await this.mysqlService.query(query, params);
 
     return users;
@@ -51,9 +52,14 @@ export class UsersRepository {
   async getUserById(id: number) {
     const { query, params } = this.queryBuilder.buildSelect(
       this.table,
-      { equal: { id } },
+      {
+        equal: {
+          and: { id },
+        },
+      },
       { limit: 1 },
     );
+
     return this.mysqlService.query(query, params);
   }
 
@@ -61,7 +67,7 @@ export class UsersRepository {
     const { query, params } = this.queryBuilder.buildSelect(
       this.table,
       {
-        like: { right: { email } },
+        like: { right: { and: { email } } },
       },
       { limit },
     );
@@ -74,7 +80,7 @@ export class UsersRepository {
     data: UpdateUserDto,
   ): Promise<IMysqlUpdateResponse> {
     const { query, params } = this.queryBuilder.buildUpdate(this.table, data, {
-      equal: { id: userId },
+      equal: { and: { id: userId } },
     });
 
     return this.mysqlService.query(
@@ -88,7 +94,7 @@ export class UsersRepository {
     data: PatchUserDto,
   ): Promise<IMysqlUpdateResponse> {
     const { query, params } = this.queryBuilder.buildUpdate(this.table, data, {
-      equal: { id: userId },
+      equal: { and: { id: userId } },
     });
 
     return this.mysqlService.query(
@@ -99,7 +105,7 @@ export class UsersRepository {
 
   async deleteUser(userId: number): Promise<IMysqlDeleteResponse> {
     const { query, params } = this.queryBuilder.buildDelete(this.table, {
-      equal: { id: userId },
+      equal: { and: { id: userId } },
     });
 
     return this.mysqlService.query(
