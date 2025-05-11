@@ -4,14 +4,12 @@ import {
   SqlWhereConditions,
   PercentageTypes,
   SqlSelectOptions,
+  ISqlBuilderResult,
 } from './interfaces/mysql.builder.interface';
 
 @Injectable()
 export class MySqlBuilderService implements ISqlBuilder {
-  buildInsert(
-    table: string,
-    data: Record<string, any>,
-  ): { query: string; params: any[] } {
+  buildInsert(table: string, data: Record<string, any>): ISqlBuilderResult {
     const columns = Object.keys(data);
     const placeholders = columns.map(() => '?').join(', ');
     const values = Object.values(data);
@@ -28,7 +26,7 @@ export class MySqlBuilderService implements ISqlBuilder {
     table: string,
     updateData: Record<string, any>,
     where: SqlWhereConditions,
-  ): { query: string; params: any[] } {
+  ): ISqlBuilderResult {
     const setClauses = Object.keys(updateData).map((key) => `${key} = ?`);
     const setParams = Object.values(updateData);
     const whereClauses: string[] = [];
@@ -51,7 +49,7 @@ export class MySqlBuilderService implements ISqlBuilder {
     table: string,
     where?: SqlWhereConditions,
     options?: SqlSelectOptions,
-  ): { query: string; params: any[] } {
+  ): ISqlBuilderResult {
     let query = `SELECT * FROM ${table}`;
 
     const params: any[] = [];
@@ -81,10 +79,7 @@ export class MySqlBuilderService implements ISqlBuilder {
     return { query, params };
   }
 
-  buildDelete(
-    table: string,
-    where: SqlWhereConditions,
-  ): { query: string; params: any[] } {
+  buildDelete(table: string, where: SqlWhereConditions): ISqlBuilderResult {
     const whereClauses: string[] = [];
     const params: any[] = [];
     this.whereConstructor(where, whereClauses, params);
