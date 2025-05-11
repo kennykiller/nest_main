@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ISqlBuilder,
-  IWhereOptions,
+  SqlWhereConditions,
   PercentageTypes,
   SqlSelectOptions,
 } from './interfaces/mysql.builder.interface';
@@ -27,7 +27,7 @@ export class MySqlBuilderService implements ISqlBuilder {
   buildUpdate(
     table: string,
     updateData: Record<string, any>,
-    where: IWhereOptions,
+    where: SqlWhereConditions,
   ): { query: string; params: any[] } {
     const setClauses = Object.keys(updateData).map((key) => `${key} = ?`);
     const setParams = Object.values(updateData);
@@ -49,7 +49,7 @@ export class MySqlBuilderService implements ISqlBuilder {
 
   buildSelect(
     table: string,
-    where?: IWhereOptions,
+    where?: SqlWhereConditions,
     options?: SqlSelectOptions,
   ): { query: string; params: any[] } {
     let query = `SELECT * FROM ${table}`;
@@ -83,7 +83,7 @@ export class MySqlBuilderService implements ISqlBuilder {
 
   buildDelete(
     table: string,
-    where: IWhereOptions,
+    where: SqlWhereConditions,
   ): { query: string; params: any[] } {
     const whereClauses: string[] = [];
     const params: any[] = [];
@@ -98,7 +98,7 @@ export class MySqlBuilderService implements ISqlBuilder {
   }
 
   whereConstructor(
-    whereObject: IWhereOptions,
+    whereObject: SqlWhereConditions,
     whereClausesArray: string[],
     params: any[],
   ) {
@@ -168,7 +168,9 @@ export class MySqlBuilderService implements ISqlBuilder {
         case 'between':
           Object.entries(whereObject[key]).forEach(([column, value]) => {
             if (!Array.isArray(value) || value.length !== 2) {
-              throw new BadRequestException('SYNTAX_ERROR');
+              throw new BadRequestException(
+                `Field "${column}" expects an array for "IN" condition`,
+              );
             }
             whereClausesArray.push(`${column} BETWEEN ? AND ?`);
             params.push(...value);

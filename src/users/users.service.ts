@@ -6,7 +6,10 @@ import { IUser } from './interfaces/user.interface';
 import { UserResponseDto } from './dto/user-response-dto';
 import { UpdateUserDto } from './dto/update-user-dto';
 import { PatchUserDto } from './dto/patch-user-dto';
-import { IMysqlUpdateResponse } from '../databases/mysql.interfaces';
+import {
+  IMysqlDeleteResponse,
+  IMysqlUpdateResponse,
+} from '../databases/mysql.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -63,5 +66,7 @@ export class UsersService {
     return this.usersRepo.patchUser(userId, data);
   }
 
-  // async deleteOne(id: number) {}
+  async deleteOne(userId: number): Promise<IMysqlDeleteResponse> {
+    return this.usersRepo.deleteUser(userId);
+  }
 }

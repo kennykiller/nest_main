@@ -6,19 +6,19 @@ export interface ISqlBuilder {
   buildUpdate(
     table: string,
     updateData: Record<string, any>,
-    where: IWhereOptions,
+    where: SqlWhereConditions,
   ): { query: string; params: any[] };
   buildSelect(
     table: string,
-    where?: IWhereOptions,
+    where?: SqlWhereConditions,
     options?: SqlSelectOptions,
   ): { query: string; params: any[] };
   buildDelete(
     table: string,
-    where: IWhereOptions,
+    where: SqlWhereConditions,
   ): { query: string; params: any[] };
   whereConstructor(
-    whereObject: IWhereOptions,
+    whereObject: SqlWhereConditions,
     whereClausesArray: any[],
     params: any[],
   ): void;
@@ -32,8 +32,10 @@ export type SqlSelectOptions = {
 };
 
 export type PercentageTypes = 'right' | 'left' | 'both';
+type SqlInCondition = Record<string, any[]>;
+type SqlBetweenCondition = Record<string, [any, any]>;
 
-export interface IWhereOptions {
+export interface SqlWhereConditions {
   equal?: Record<string, any>;
   gt?: Record<string, any>;
   gte?: Record<string, any>;
@@ -42,8 +44,8 @@ export interface IWhereOptions {
   like?: {
     [K in PercentageTypes]?: Record<string, any>;
   };
-  in?: Record<string, any[]>;
-  between?: Record<string, [string | number, string | number]>;
+  in?: SqlInCondition;
+  between?: SqlBetweenCondition;
   isNull?: string[];
   isNotNull?: string[];
 }

@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { MySqlService } from '../databases/mysql.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import {
+  IMysqlDeleteResponse,
   IMysqlInsertResponse,
   IMysqlUpdateResponse,
 } from '../databases/mysql.interfaces';
-import { UsersQueriesService } from './users.queries.service';
 import { MYSQL_TABLES } from '../utils/constants';
 import { MySqlBuilderService } from '../databases/mysql.builder.service';
 import { SqlSelectOptions } from '../databases/interfaces/mysql.builder.interface';
@@ -17,7 +17,6 @@ export class UsersRepository {
   private table: string;
   constructor(
     private mysqlService: MySqlService,
-    private usersQueries: UsersQueriesService,
     private queryBuilder: MySqlBuilderService,
   ) {
     this.table = MYSQL_TABLES.USERS;
@@ -96,5 +95,16 @@ export class UsersRepository {
       query,
       params,
     ) as Promise<IMysqlUpdateResponse>;
+  }
+
+  async deleteUser(userId: number): Promise<IMysqlDeleteResponse> {
+    const { query, params } = this.queryBuilder.buildDelete(this.table, {
+      equal: { id: userId },
+    });
+
+    return this.mysqlService.query(
+      query,
+      params,
+    ) as Promise<IMysqlDeleteResponse>;
   }
 }
